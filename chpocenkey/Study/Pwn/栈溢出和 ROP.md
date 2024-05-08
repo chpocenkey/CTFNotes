@@ -19,4 +19,35 @@
 开启 NX 保护时，栈上的 `shellcode` 不可执行，此时需要使用 `ret2libc` 调用 `libc.so` 中的 `system("/bin/sh")`，在返回地址覆盖上 `system()` 函数的地址。再添加 `"/bin/sh"` 字符串的地址作为参数
 开启了 ASLR，则需要先做内存泄漏，再填充真实地址
 ## ROP
-
+返回导向编程（Return-Oriented Programming，ROP），无须调用任何函数即可执行任意代码
+使用 ROP 攻击，首先需要扫描文件，提取出可用的 `gadget` 片段（通常以 `ret` 指令结尾），然后将这些 `gadget` 根据所需要的功能进行组合，达到攻击者的目的
+由于 `gadget` 片段在地址上不一定是连续的，所以需要通过 `ret` 指令进行连接，依次执行
+### `ret` 指令的作用
+- 通过间接跳转改变执行流
+- 更新寄存器状态
+### 工具 
+ROPgadget、Ropper等，可以直接在 [ropshell](http://www.ropshell.com/) 网站上搜索
+### 用法
+- 保存栈数据到寄存器：`pop eax; ret;`
+- 保存内存数据到寄存器：`mov ecx, [eax]; ret;`
+- 保存寄存器数据到内存：`mov [eax], ecx; ret;`
+- 算数和逻辑运算：`add eax, ebx; ret;`
+- 系统调用：`int 0x80; ret;` `call gs:[0x10]; ret;`
+- 影响栈帧（改变 `ebp` 的值）：`leave; ret;` `pop ebp; ret;`
+## ROP的变种（不依赖 `ret` 指令）
+以 `jmp` 指令代替 `ret` 指令作为结尾，被称为 JOP（Jump-Oriented Programming）
+它的行为与 `ret` 很像，唯一的副作用是覆盖了 `eax` 寄存器。如果程序执行不依赖于 `eax`，则这段指令可以取代 `ret`
+单间接跳转
+`pop %eax; jmp *%eax;`
+双重间接跳转
+`pop %eax; jmp *(%eax);`
+此时 `eax` 存放一个被称为 `sequence catalog` 表的地址，该表用于存放各种指令序列的地址。双重间接跳转就是先从上一段指令序列跳到 `catalog` 表，然后从 `catalog` 表跳到下一段指令序列
+## Blind ROP
+BROP（Blind Return Oriented Programming）能够在无法获得二进制程序的情况下，基于远程服务崩溃与否（连接是否中断），进行 ROP 攻击获得 `shell`
+### 条件
+- 目标程序存在栈溢出漏洞，并且可以稳定触发
+- 目标进程在崩溃后会立即重启，并且重启后的进程内存不会重新随机化
+- 如果在编译时同时启用了 `ASLR` 和 `PIE`，则服务器必须是一个 `fork` 服务器，并且在重启时不使用 `execve`
+### BROP 攻击的主要阶段
+1. Stack reading：泄露 Canaries 和返回地址，然后从返回地址可以推算出程序的加载地址，用于后续 gadgets 的扫描。泄露方法是遍历所有 256 个数，每溢出一个字节根据程序是否崩溃来判断溢出值是否正确
+2. Bling ROP：用于远程搜索 `gadgets`，目标是将目标程序从内存写到 `socket`，传回攻击者本地
