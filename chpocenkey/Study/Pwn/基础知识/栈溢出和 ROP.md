@@ -27,6 +27,12 @@
 - 更新寄存器状态
 ### 工具 
 ROPgadget、Ropper等，可以直接在 [ropshell](http://www.ropshell.com/) 网站上搜索
+###### 程序
+- ROPgadget
+- Ropper
+###### 网站
+-  [ropshell](http://www.ropshell.com/)
+- scoding.de
 ### 用法
 - 保存栈数据到寄存器：`pop eax; ret;`
 - 保存内存数据到寄存器：`mov ecx, [eax]; ret;`
