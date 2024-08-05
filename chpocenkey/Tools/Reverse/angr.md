@@ -1,8 +1,8 @@
 ## 简介
 
-[angr](https://github.com/angr/angr) 是一个使用 Python 编写的跨平台开源二进制**混合**（Concolic，即 concrete + symbolic）执行引擎，为我们提供了一系列实用的二进制分析工具，更多关于 angr 的介绍信息可以看他们的 [官网](https://angr.io) ，关于 angr 提供的 API 则可以查看[文档](https://api.angr.io/)。
+[angr](https://github.com/angr/angr) 是一个使用 Python 编写的跨平台开源二进制**混合**（Concolic，即 concrete + symbolic）执行引擎，为我们提供了一系列实用的二进制分析工具，更多关于 angr 的介绍信息可以看他们的 [官网](https://angr.io) ，关于 angr 提供的 API 则可以查看[文档](https://api.angr.io/)
 
-在 CTF 逆向题目当中，angr 强大的混合执行引擎可以帮助我们更好地进行自动化分析，从而大幅度节省解题时间。
+在 CTF 逆向题目当中，angr 强大的混合执行引擎可以帮助我们更好地进行自动化分析，从而大幅度节省解题时间
 
 ## 安装
 
@@ -60,7 +60,7 @@ WARNING | 2022-11-23 19:25:30,006 | cle.loader | The main binary is a position-i
     
 - `arch.memory_endness`：端序，大端为 `Endness.BE` ，小端为 `Endness.LE`。
     
-    > 源码里还有一个 “中端序” `Endness.ME` ：）
+    > 源码里还有一个 “中端序” `Endness.ME` 
     
 
 #### factory - 实用类工厂
@@ -95,7 +95,7 @@ angr 以基本块为单位分析代码，我们可以通过 `project.factory.blo
 
 ##### state - 模拟执行状态
 
-angr 使用 `SimState` 类表示一个 模拟的程序状态（simulated program state），我们的各种操作实际上是由一个 state 步进到另一个 state 的过程。
+angr 使用 `SimState` 类表示一个模拟的程序状态（simulated program state），我们的各种操作实际上是由一个 state 步进到另一个 state 的过程。
 
 我们使用 `project.factory.entry_state()` 获取一个程序的初始执行状态，使用 `project.factory.blank_state(addr)` 获取一个程序从指定地址开始执行的空白状态：
 
@@ -120,7 +120,7 @@ angr 将一个状态的执行方法独立成一个 `SimulationManager` 类，以
 ```python
 >>> proj.factory.simgr(state)
 <SimulationManager with 1 active>
->>> proj.factory.simulation_manager(state)
+>>> simgr = proj.factory.simulation_manager(state)
 <SimulationManager with 1 active>
 ```
 
